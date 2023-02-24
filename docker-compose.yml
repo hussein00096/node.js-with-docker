@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  node_backend:
+    container_name: node_t
+    build:
+      context: .
+    ports:
+      - "9000:3000"
+    links:
+      - "node_db:database"
+    depends_on:
+      - node_db
+    environment:
+      - SQL_PORT=3306
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.2
+
+  node_db:
+    container_name: node_db
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dd
+      MYSQL_PORT: 3307
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_LOWER_CASE_TABLE_NAMES: 0
+      MYSQL_SSL_DISABLED: "true"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3307:3306"
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.3
+
+networks:
+  my_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
